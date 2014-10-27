@@ -1,4 +1,4 @@
-#Makefile
+#Makefile PROJ
 LEX  = flex
 YACC = yacc
 CC = gcc
