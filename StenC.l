@@ -1,48 +1,102 @@
+%{
+    #include <stdio.h>
+    #include <stdlib.h>
+    #include <math.h>
+    #include "y.tab.h"
+    
+    void count();
+    
+%}
+
+
 chiffre [0-9]
+
 char [a-zA-Z]
+
 mot ({char})+
 
 entier ({chiffre})+
+
 indent {mot}|{mot}{entier}
-string \"[.]\"
-struct_control "if"|"else"|"while"|"for"
-fonc_lib "printf"|"printi"
-fonc_appel {motCle}[" "]"main"[" "]* "("
-accolade "{"|"}"
 
+int \\INT
+stencil \\STENCIL
+const \\CONST
 
-%%
-{string}			{printf("trouver un string :%s\n",yytext); return STRING;}
-"int"					{printf("trouver type int:%s\n",yytext); return INT;}
-"stencil"				{printf("trouver type stencil:%s\n",yytext); return STENCIL;}
-{entier}  			{printf("trouver entier:%s\n",yytext);return ENTIER;}
-{indent}			{printf("trouver indent:%s\n",yytext);return ID;}
-"const"				{printf("trouver constante:%s\n",yytext);return CONST;}
-"++"				{printf("operateur:%s\n",yytext); return PLUS2;}
-"+"					{printf("operateur:%s\n",yytext); return PLUS;}
-"--"				{printf("operateur:%s\n",yytext); return MOINS2;}
-"-"					{printf("operateur:%s\n",yytext); return MOINS;}
-"*"					{printf("operateur:%s\n",yytext); return MULT;}
-"/"					{printf("operateur:%s\n",yytext); return DIV;}
-"if"				{printf("struct_control:%s\n",yytext);	return IF;}
-"else"				{printf("struct_control:%s\n",yytext);	return ELSE;}
-"while"				{printf("struct_control:%s\n",yytext);	return WHILE;}	
-"for"				{printf("struct_control:%s\n",yytext);	return FOR;}				
-"printf"			{printf("fonc_lib printf:%s\n",yytext);return PRINTF;}
-"main"				{printf("fonction Main:%s\n",yytext); return MAIN;}
-；					{printf("termineur d'instrution:\n",yytext);}
-\/\/.* 				{return ;}
-\/\*(.*\n)*.*\*\/ 	{return ;}
-accolade			{printf("accolade:%s\n",yytext[0]);}
-\(|\)				{printf("parenthese:%s\n",yytext[0]);}
-.					{printf("Symbole:%s\n",yytext);}
+string \"[.]\"                 /*STRING 可以用于什么呢?*/
 
 
 
 %%
+
+{entier}  			{count();return NUMBER;}
+{indent}			{count(); return ID;}
+
+
+"int"               {count();return INT;}
+"stencil"           {count();return STENCIL;}
+"const"			    {count(); return CONST;}
+"sqrt"              {count(); return FUNC_NAME;}
+
+"$"                 {count(); return '$';}
+"+"                 {count(); return '+';}
+"-"                 {count(); return '-';}
+"*"                 {count(); return '*';}
+"/"                 {count(); return '/';}
+"="                 {count(); return '=';}
+
+"++"                {count(); return INC_OP;}
+"--"                {count(); return DEC_OP;}
+"=="                {count(); return EQ_OP; }
+
+
+"if"                {count(); return IF;}
+"else"              {count(); return ELSE;}
+"for"               {count(); return FOR;}
+"while"             {count(); return WHILE;}
+
+
+"("                 {count(); return '(';}
+")"                 {count(); return ')';}
+"{"                 {count(); return '{';}
+"}"                 {count(); return '}';}
+"["                 {count(); return '[';}
+"]"                 {count(); return ']';}
+
+"."                 {count(); return '.';}
+";"                 {count(); return ';';}
+","                 {count(); return ',';}
+
+[ \t\v\n\f]         {count(); }
+.                   { /* ignore bad characters */ }
+
+
+%%
+
+int column = 0;
+
+void count(){
+    int i = 0;
+    
+    for(i = 0; yytext[i] != '\0'; i++){
+        if(yytext[i] == '\n')
+        column = 0;
+        else if(yytext[i] == '\t')
+        column += 8 - (column % 8);
+        else
+        column++;
+        
+        ECHO;
+    }
+}
+
+
+
+
+
 int main(){
 	
-	yyin = fopen("./Sobel.c", "r");
+	yyin = fopen("./test.c", "r");
 	
 	if(yyin == NULL)
 	{

@@ -8,8 +8,7 @@
 %token CONST ID NUMBER INT
 %token IF ELSE FOR WHILE
 %token STENCIL FUNC_NAM
-%token 
-%start program
+%token
 
 
 %%
