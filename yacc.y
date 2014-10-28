@@ -10,10 +10,8 @@
 %token STENCIL FUNC_NAME
 %token INC_OP DEC_OP EQ_OP
 
-
 %%
-
-program:
+axiom:
 statement_list '\n' INT MAIN'('')''{' statement_list function_list RETURN '0' ';' '}'
 ;
 
@@ -151,10 +149,6 @@ exp_mul
 exp_div
 : expression '/' expression
 
-exp_function
-: FUNC_NAME '(' function_list ')'
-| function_list
-;
 
 
 %%
