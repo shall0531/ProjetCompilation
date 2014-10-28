@@ -6,7 +6,7 @@
     
     void count();
     
-%}
+    %}
 
 
 chiffre [0-9]
@@ -91,18 +91,19 @@ void count(){
 }
 
 
-
-
-
-int main(){
+/*
+ 
+ 
+ int main(){
 	
 	yyin = fopen("./test.c", "r");
 	
 	if(yyin == NULL)
 	{
-		fprintf(stderr, "mauvaise déclaraion de fichier\n");
+ fprintf(stderr, "mauvaise déclaraion de fichier\n");
 	}
 	yylex();
-    
-    return  0;
-}
+ 
+ return  0;
+ }
+ */
