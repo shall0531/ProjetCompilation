@@ -1,12 +1,14 @@
 %{
+    #include <string.h>
     #include <stdio.h>
     #include <stdlib.h>
     #include <math.h>
     #include "y.tab.h"
+    #include "symbol.h"
     
-    void count();
+    struct symbol *tds;
     
-    %}
+%}
 
 
 chiffre [0-9]
@@ -17,93 +19,69 @@ mot ({char})+
 
 entier ({chiffre})+
 
-indent {mot}|{mot}{entier}
+ident {mot}|{mot}{entier}
 
-int \\INT
-stencil \\STENCIL
-const \\CONST
+blank_chars ([ \f\r\t\v]+)
 
-string \"[.]\"                 /*STRING 可以用于什么呢?*/
+string \"[.]\"                
 
-
+stencil \\Stencil
 
 %%
+"if"				{return IF;}
+"else"				{return ELSE;}
+"stencil"			{}
+"while"             {return WHILE; }
+{entier}  			{yylval.valeur = atoi(yytext); return NUMBER;}
 
-{entier}  			{count();return NUMBER;}
-{indent}			{count(); return ID;}
-
-
-"int"               {count();return INT;}
-"stencil"           {count();return STENCIL;}
-"const"			    {count(); return CONST;}
-"sqrt"              {count(); return FUNC_NAME;}
-
-"$"                 {count(); return '$';}
-"+"                 {count(); return '+';}
-"-"                 {count(); return '-';}
-"*"                 {count(); return '*';}
-"/"                 {count(); return '/';}
-"="                 {count(); return '=';}
-
-"++"                {count(); return INC_OP;}
-"--"                {count(); return DEC_OP;}
-"=="                {count(); return EQ_OP; }
+{ident}             {yylval.string = yytext;
+                    struct symbol* id;
+                    id = symbol_lookup(tds,yytext);
+                    if(id == NULL)
+                    {
+                        symbol_add(&tds,yytext);
+                        
+                    }
+                    yylval.string = strdup(yytext);
+                     return ID;}
 
 
-"if"                {count(); return IF;}
-"else"              {count(); return ELSE;}
-"for"               {count(); return FOR;}
-"while"             {count(); return WHILE;}
+"+"                 { return '+';}
+"-"                 { return '-';}
+"*"                 { return '*';}
+"/"                 { return '/';}
+"="                 { return ASSIGN;}
+"<"          	    { return LT; }
+">"          	    { return GT; }
+
+"<="         	    { return LEQ;}
+">="                { return GEQ;}
+"!="         	    { return NEQ;}
+"=="         	    { return EQ; }
+"&&"         	    { return AND;}
+"||"         	    { return OR; }
+"!"          	    { return NOT;}
+
+"++"                { printf("trouver symbole:%s",yytext);}
+"--"                { return yytext;}
+"+="                { return yytext;}
+"-="                { return yytext;}
+
+"("                 { return '(';}
+")"                 { return ')';}
+"{"                 { return '{';}
+"}"                 { return '}';}
+"["                 { return '[';}
+"]"                 { return ']';}
 
 
-"("                 {count(); return '(';}
-")"                 {count(); return ')';}
-"{"                 {count(); return '{';}
-"}"                 {count(); return '}';}
-"["                 {count(); return '[';}
-"]"                 {count(); return ']';}
 
-"."                 {count(); return '.';}
-";"                 {count(); return ';';}
-","                 {count(); return ',';}
+"."                 { return '.';}
+";"                 { return ';';}
+","                 { return ',';}
 
-[ \t\v\n\f]         {count(); }
+blank_chars         { }
 .                   { /* ignore bad characters */ }
 
 
 %%
-
-int column = 0;
-
-void count(){
-    int i = 0;
-    
-    for(i = 0; yytext[i] != '\0'; i++){
-        if(yytext[i] == '\n')
-        column = 0;
-        else if(yytext[i] == '\t')
-        column += 8 - (column % 8);
-        else
-        column++;
-        
-        ECHO;
-    }
-}
-
-
-/*
- 
- 
- int main(){
-	
-	yyin = fopen("./test.c", "r");
-	
-	if(yyin == NULL)
-	{
- fprintf(stderr, "mauvaise déclaraion de fichier\n");
-	}
-	yylex();
- 
- return  0;
- }
- */
