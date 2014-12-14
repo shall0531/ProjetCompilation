@@ -27,6 +27,9 @@ stencil \\Stencil
 "stencil"			{}
 "while"             {return WHILE; }
 "printf"			{return PRINTF;}
+"main"				{return MAIN;}
+"return 0"			{return RETURN;}
+"for"				{return FOR;}
 {ident}             {yylval.string = yytext;
                     struct symbol* id;
                     id = symbol_lookup(tds,yytext);
@@ -40,6 +43,8 @@ stencil \\Stencil
 {entier}  			{yylval.valeur = atoi(yytext); return NUMBER;}
 
 
+"++"                { return PLUSPLUS;}
+"--"                { return MOINSMOINS;}
 "+"                 { return '+';}
 "-"                 { return '-';}
 "*"                 { return '*';}
@@ -56,10 +61,6 @@ stencil \\Stencil
 "||"         	    { return OR; }
 "!"          	    { return NOT;}
 
-"++"                { printf("trouver symbole:%s",yytext);}
-"--"                { return yytext;}
-"+="                { return yytext;}
-"-="                { return yytext;}
 
 "("                 { return '(';}
 ")"                 { return ')';}

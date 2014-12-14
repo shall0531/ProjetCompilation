@@ -7,6 +7,8 @@
 
   void yyerror(char*);
   int yylex();
+  FILE* yyin;
+  
   struct symbol* tds = NULL;
   int temp_number = 0;
   int next_quad = 0;
@@ -44,7 +46,7 @@
   } codeexpr;
 }
 
-%token IF ELSE WHILE PRINTF
+%token IF ELSE WHILE PRINTF MAIN RETURN FOR
 %token GT LT GEQ LEQ NEQ EQ
 %token OR AND NOT
 %token ASSIGN
@@ -52,7 +54,7 @@
 %token <valeur> NUMBER
 %token <string> ID
 %type <codeexpr> condition
-%type <codestmt> statement
+%type <codestmt> statement 
 %type <codegen> assignment
 %type <codegen> expression
 %type <codestmt> list
@@ -61,7 +63,7 @@
 %type <relation> relop
 %left OR
 %left AND
-%left '+' '-' '*' '/'
+%left '+' '-' '*' '/' PLUSPLUS MOINSMOINS
 %right NOT
 %nonassoc LOWER_THAN_ELSE
 %nonassoc ELSE
@@ -69,12 +71,14 @@
 
 %%
 axiom:
-  list '\n'       {
-		    printf("Match !!!\n");
-		    struct symbol* end = symbol_newcst(&tds, &temp_number, -1);
-		    quad_list_complete($1.next, end);
+  		 INT MAIN'(' ')' '{' list RETURN ';' '}'	{
+		    	printf("Match !!!\n");
+		    //struct symbol* end = symbol_newcst(&tds, &temp_number, -1);
+		    //quad_list_complete($1.next, end);
+		    symbol_print(tds);
+		    quad_print($6.code);
 		  }
-
+		  ;
 
 list:
     list tag statement {
@@ -89,20 +93,19 @@ list:
 		    $$.code = $1.code;
 			printf("bbb\n");
 		  } 
+|
   ;
 
 statement:
-    IF '(' condition ')' tag '{' statement '}' %prec LOWER_THAN_ELSE{
+    IF '(' condition ')' tag '{' statement '}' %prec LOWER_THAN_ELSE {
 			printf("ccc\n");
 		    quad_list_complete($3.true, $5);
 		    quad_list_concat($3.false, $7.next);
 		    $$.next = $3.false;
 		    $$.code = $3.code;
-		    quad_add(&$$.code, $7.code); 
-			printf("ccc\n");
-			
+		    quad_add(&$$.code, $7.code);
 		  }
-  | IF '(' condition ')' tag '{' statement '}' ELSE tagoto '{' statement '}'{
+  | IF '(' condition ')' tag '{' statement '}' ELSE tagoto '{' statement '}' {
 		    quad_list_complete($3.true, $5);
 		    quad_list_complete($3.false, $10.quad);
 		    quad_list_concat($10.next, $12.next);
@@ -113,7 +116,7 @@ statement:
 		    quad_add(&$$.code, $12.code);
             
 		  }
-  | WHILE tag '(' condition ')' tag '{'statement '}'{
+  | WHILE tag '(' condition ')' tag '{'statement '}' {
 		    quad_list_complete($4.true, $6);
 		    quad_list_complete($8.next, $2);
 		    $$.next = $4.false;
@@ -123,6 +126,9 @@ statement:
 		    quad_add(&$$.code, new);
             
 		  }
+|FOR tag '(' expression ';' expression ';' expression')' '{' statement '}'{
+				
+				}
 | assignment ';'{
  		    $$.next = $1.code->next;
 		    $$.code = $1.code;
@@ -133,12 +139,20 @@ statement:
 		    $$.next = $3.code->next;
 		    $$.code = $3.code;
 		}
+|declaration ';'{ }
 
   ;
+  
+declaration: INT ID_list {}
+			;
+  
+ID_list: ID_list ',' ID	{}
+		|ID	{}
+		;
+
 
 assignment:
-		ID ASSIGN expression
-			{
+		ID ASSIGN expression{
     		printf("ID = expression!\n");
     		$$.result = symbol_lookup(tds,$1);
     		if($$.result == NULL)
@@ -152,7 +166,38 @@ assignment:
     		$$.code = $3.code;
     		quad_add(&$$.code,new);
 		}
-		| ID ASSIGN type_table{}
+		| ID ASSIGN type_table{
+				}
+		| expression PLUSPLUS{
+				/*struct quad *new;
+				struct symbol* tmp = (symbol*)malloc(sizeof(symbol*));
+				tmp->identifier = NULL;
+				tmp->isconstant = 1;
+				tmp->value = 1;
+				tmp->next = NULL;
+				$$.result = symbol_newtemp(&tds,&tds_taille);
+				//$$.result -> value = $1.result -> value + $3.result -> value;
+				new = quad_gen(&next_quad,'+',$1.result,tmp,$$.result);
+				$$.code = $1.code;
+				quad_add(&$$.code,$1.code);
+				quad_add(&$$.code,new);*/
+
+				}
+		| expression MOINSMOINS{
+				/*struct quad *new;
+				struct symbol* tmp;
+				tmp->identifier = NULL;
+				tmp->isconstant = 1;
+				tmp->value = 1;
+				tmp->next = NULL;
+				$$.result = symbol_newtemp(&tds,&tds_taille);
+				//$$.result -> value = $1.result -> value - $3.result -> value;
+				new = quad_gen(&next_quad,'-',$1.result,tmp,$$.result);
+				$$.code = $1.code;
+				quad_add(&$$.code,$1.code);
+				quad_add(&$$.code,new);*/
+
+				}
 ;
 type_table:
 '[' expression ']' '['expression']'{
@@ -309,15 +354,12 @@ relop:
 
 %%
 
-int main()
+int main(int argc, char** argv)
 {
-    printf("start:\n");
-    return yyparse();
-   /* ID_OP:
-    ID "++"
-    |ID "--"
-    |ID "=" ENTIER
-    ;*/
+	if(argc>1)
+	yyin=fopen(argv[1],"r");
+	else yyin=stdin;
+	return yyparse();
 
 }
 
