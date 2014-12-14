@@ -44,10 +44,11 @@
   } codeexpr;
 }
 
-%token IF ELSE WHILE
+%token IF ELSE WHILE PRINTF
 %token GT LT GEQ LEQ NEQ EQ
 %token OR AND NOT
 %token ASSIGN
+%token INT
 %token <valeur> NUMBER
 %token <string> ID
 %type <codeexpr> condition
@@ -60,6 +61,10 @@
 %type <relation> relop
 %left OR
 %left AND
+%left '+' '-' '*' '/'
+%right NOT
+%nonassoc LOWER_THAN_ELSE
+%nonassoc ELSE
 
 
 %%
@@ -70,55 +75,65 @@ axiom:
 		    quad_list_complete($1.next, end);
 		  }
 
+
 list:
-    list ';' tag statement {
-		    quad_list_complete($1.next, $3);
-		    $$.next = $4.next;
+    list tag statement {
+		    quad_list_complete($1.next, $2);
+		    $$.next = $3.next;
 		    $$.code = $1.code;
-		    quad_add(&$$.code, $4.code);
+		    quad_add(&$$.code, $3.code);
+			printf("aaa\n");
 		  } 
-  | statement     {
+  |statement     {
 		    $$.next = $1.next;
 		    $$.code = $1.code;
+			printf("bbb\n");
 		  } 
   ;
 
 statement:
-    IF '(' condition ')' tag statement {
+    IF '(' condition ')' tag '{' statement '}' %prec LOWER_THAN_ELSE{
+			printf("ccc\n");
 		    quad_list_complete($3.true, $5);
-		    quad_list_concat($3.false, $6.next);
+		    quad_list_concat($3.false, $7.next);
 		    $$.next = $3.false;
 		    $$.code = $3.code;
-		    quad_add(&$$.code, $6.code); 
+		    quad_add(&$$.code, $7.code); 
+			printf("ccc\n");
 			
 		  }
-  | IF '(' condition ')' tag statement ELSE tagoto statement {
+  | IF '(' condition ')' tag '{' statement '}' ELSE tagoto '{' statement '}'{
 		    quad_list_complete($3.true, $5);
-		    quad_list_complete($3.false, $8.quad);
-		    quad_list_concat($8.next, $9.next);
-		    $$.next = $8.next;
+		    quad_list_complete($3.false, $10.quad);
+		    quad_list_concat($10.next, $12.next);
+		    $$.next = $10.next;
 		    $$.code = $3.code;
-		    quad_add(&$$.code, $6.code);
-		    quad_add(&$$.code, $8.code);
-		    quad_add(&$$.code, $9.code);
+		    quad_add(&$$.code, $7.code);
+		    quad_add(&$$.code, $10.code);
+		    quad_add(&$$.code, $12.code);
             
 		  }
-  | WHILE tag '(' condition ')' tag statement {
+  | WHILE tag '(' condition ')' tag '{'statement '}'{
 		    quad_list_complete($4.true, $6);
-		    quad_list_complete($7.next, $2);
+		    quad_list_complete($8.next, $2);
 		    $$.next = $4.false;
 		    $$.code = $4.code;
-		    quad_add(&$$.code, $7.code);
+		    quad_add(&$$.code, $8.code);
 		    struct quad* new = quad_gen(&next_quad, 'G', NULL, NULL, $2);
 		    quad_add(&$$.code, new);
             
 		  }
-| assignment
-{
+| assignment ';'{
  		    $$.next = $1.code->next;
 		    $$.code = $1.code;
+			printf("ccccc\n");
 
-}
+		}
+| PRINTF '(' expression ')' ';'{
+		    $$.next = $3.code->next;
+		    $$.code = $3.code;
+		}
+
   ;
 
 assignment:
@@ -136,11 +151,13 @@ assignment:
     		new = quad_gen(&next_quad,'=',$3.result, NULL, $$.result);
     		$$.code = $3.code;
     		quad_add(&$$.code,new);
-    
+		}
+		| ID ASSIGN type_table{}
+;
+type_table:
+'[' expression ']' '['expression']'{
 }
 ;
-
-
 tagoto:
 		  {
 		    $$.code = quad_gen(&next_quad, 'G', NULL, NULL, NULL);

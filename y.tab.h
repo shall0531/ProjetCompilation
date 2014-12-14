@@ -42,36 +42,42 @@
      IF = 258,
      ELSE = 259,
      WHILE = 260,
-     GT = 261,
-     LT = 262,
-     GEQ = 263,
-     LEQ = 264,
-     NEQ = 265,
-     EQ = 266,
-     OR = 267,
-     AND = 268,
-     NOT = 269,
-     ASSIGN = 270,
-     NUMBER = 271,
-     ID = 272
+     PRINTF = 261,
+     GT = 262,
+     LT = 263,
+     GEQ = 264,
+     LEQ = 265,
+     NEQ = 266,
+     EQ = 267,
+     OR = 268,
+     AND = 269,
+     NOT = 270,
+     ASSIGN = 271,
+     INT = 272,
+     NUMBER = 273,
+     ID = 274,
+     LOWER_THAN_ELSE = 275
    };
 #endif
 /* Tokens.  */
 #define IF 258
 #define ELSE 259
 #define WHILE 260
-#define GT 261
-#define LT 262
-#define GEQ 263
-#define LEQ 264
-#define NEQ 265
-#define EQ 266
-#define OR 267
-#define AND 268
-#define NOT 269
-#define ASSIGN 270
-#define NUMBER 271
-#define ID 272
+#define PRINTF 261
+#define GT 262
+#define LT 263
+#define GEQ 264
+#define LEQ 265
+#define NEQ 266
+#define EQ 267
+#define OR 268
+#define AND 269
+#define NOT 270
+#define ASSIGN 271
+#define INT 272
+#define NUMBER 273
+#define ID 274
+#define LOWER_THAN_ELSE 275
 
 
 
@@ -108,7 +114,7 @@ typedef union YYSTYPE
   } codeexpr;
 }
 /* Line 1529 of yacc.c.  */
-#line 112 "y.tab.h"
+#line 118 "y.tab.h"
 	YYSTYPE;
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
 # define YYSTYPE_IS_DECLARED 1

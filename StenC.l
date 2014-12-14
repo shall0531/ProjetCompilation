@@ -10,16 +10,9 @@
     
 %}
 
+entier [1-9][0-9]*|[0-9]
 
-chiffre [0-9]
-
-char [a-zA-Z]
-
-mot ({char})+
-
-entier ({chiffre})+
-
-ident {mot}|{mot}{entier}
+ident [a-zA-Z_]+[0-9a-zA-Z_]*
 
 blank_chars ([ \f\r\t\v]+)
 
@@ -28,12 +21,12 @@ string \"[.]\"
 stencil \\Stencil
 
 %%
+"int"				{return INT;}
 "if"				{return IF;}
 "else"				{return ELSE;}
 "stencil"			{}
 "while"             {return WHILE; }
-{entier}  			{yylval.valeur = atoi(yytext); return NUMBER;}
-
+"printf"			{return PRINTF;}
 {ident}             {yylval.string = yytext;
                     struct symbol* id;
                     id = symbol_lookup(tds,yytext);
@@ -44,6 +37,7 @@ stencil \\Stencil
                     }
                     yylval.string = strdup(yytext);
                      return ID;}
+{entier}  			{yylval.valeur = atoi(yytext); return NUMBER;}
 
 
 "+"                 { return '+';}
