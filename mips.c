@@ -1,11 +1,9 @@
-#includ <string.h>
-#include "symbol.h"
-#include "quad.h"
-void parseMips(struct symbole* table, struct quad* list)
+#include "mips.h"
+void parseMips(struct symbol* table, struct quad* list)
 {
-	FILE* file = NULL;
+	//FILE* file = NULL;
 	
-	file = fopen("mips.s","w+");
+	FILE* file = fopen("mips.s","w+");
 	
 	char* tab[100];
 	int taille = 0;
@@ -24,13 +22,13 @@ void parseMips(struct symbole* table, struct quad* list)
 	
 	if(table != NULL)
 	{
-		struct Symbole* symbole = table;
+		struct symbol* symbole = table;
   		while (symbole != NULL) 
   		{
-  			char* car = malloc(sizeof(char) * (strlen(symbole->id) +1));
+  			char* car = malloc(sizeof(char) * (strlen(symbole->identifier) +1));
         	strcat(car, "");
-        	strcat(car, symbole->id);
-        	symbole->id = car;
+        	strcat(car, symbole->identifier);
+        	symbole->identifier = car;
         	
         	char* car2 = malloc(sizeof(char) * (strlen(symbole->value) +1));
         	strcat(car2, "");
@@ -39,11 +37,11 @@ void parseMips(struct symbole* table, struct quad* list)
         	
         	char* car3 = "bis";
 
-			fprintf(file, "%s:	  .asciiz	\"%s : \"\n", symbole->id, symbole->id);
+			fprintf(file, "%s:	  .asciiz	\"%s : \"\n", symbole->identifier, symbole->identifier);
 			strcat(car,  car3);
-         	fprintf(file, "%s:    .asciiz  \"%s\\n\"\n", car, symbole->value);
+         	fprintf(file, "%s:    .asciiz  \"%d\\n\"\n", car, symbole->value);
          	
-         	sprintf(tab[taille], "%s", symbole->id);
+         	sprintf(tab[taille], "%s", symbole->identifier);
          	sprintf(tab[taille+1], "%s", car);
          	taille+=2;
         	symbole = symbole->next;
@@ -109,8 +107,8 @@ $t
 				fprintf(res,"\nmove $a2 $t2\n ");
 				fprintf(res,"li $v0 , 4\n");
 				fprintf(res,"syscall\n");
-				scan=scan->next;*/
-		}
+				scan=scan->next;
+		}*/
 
 	fprintf(file, "\n\n.globl main\n\n");
  	fprintf(file, "		main :\n");

@@ -1,6 +1,6 @@
 #define SYMBOL_MAX_STRING 42
 
-struct symbol {
+struct symbol{
   char* identifier;
   int   isconstant;
   int   value;

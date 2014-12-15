@@ -3,9 +3,11 @@ LEX  = lex
 CC = gcc
 OBJECT = main   
 
-$(OBJECT): lex.yy.o  y.tab.o symbol.o quad.o  
-	$(CC) -o $(OBJECT) y.tab.o lex.yy.o symbol.o quad.o -ll -ly
+$(OBJECT): lex.yy.o  y.tab.o symbol.o quad.o  mips.o
+	$(CC) -o $(OBJECT) y.tab.o lex.yy.o symbol.o quad.o mips.o -ll -ly
 
+mips.o : mips.c mips.h
+	$(CC) -c mips.c
 
 symbol.o : symbol.c symbol.h
 	$(CC) -c symbol.c

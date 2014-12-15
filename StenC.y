@@ -2,8 +2,9 @@
     #include <math.h>
     #include <stdio.h>
     #include <stdlib.h>
-    #include "symbol.h"
-  #include "quad.h"
+  // #include "symbol.h"
+  //#include "quad.h"
+	#include "mips.h"
 
   void yyerror(char*);
   int yylex();
@@ -77,6 +78,7 @@ axiom:
 		    //quad_list_complete($1.next, end);
 		    symbol_print(tds);
 		    quad_print($6.code);
+			parseMips(tds,$6.code);
 		  }
 		  ;
 
